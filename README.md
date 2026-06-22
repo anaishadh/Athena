@@ -35,33 +35,21 @@ Hybrid retrieval with reranking improves correctness by +12.7% over dense-only r
 | Package manager | uv |
 
 ## Project Structure
-src/athena/
 
-├── ingestion/
-
-│   ├── loaders/        # PDF loading via PyMuPDF
-
-│   ├── chunkers/       # Fixed, sliding, recursive, metadata-aware
-
-│   └── embedders/      # BGE-M3 open-source embedder
-
-├── retrieval/
-
-│   ├── dense_retriever.py    # Semantic search via Qdrant
-
-│   ├── bm25_retriever.py     # Exact-term sparse retrieval
-
-│   └── hybrid_retriever.py   # RRF fusion of dense + sparse
-
-├── reranking/
-
-│   └── bge_reranker.py       # Cross-encoder reranking
-
-└── pipelines/
-
-├── generator.py          # Qwen2.5-14B answer generation
-
-└── rag_pipeline.py       # End-to-end pipeline
+    src/athena/
+    ├── ingestion/
+    │   ├── loaders/        # PDF loading via PyMuPDF
+    │   ├── chunkers/       # Fixed, sliding, recursive, metadata-aware
+    │   └── embedders/      # BGE-M3 open-source embedder
+    ├── retrieval/
+    │   ├── dense_retriever.py    # Semantic search via Qdrant
+    │   ├── bm25_retriever.py     # Exact-term sparse retrieval
+    │   └── hybrid_retriever.py   # RRF fusion of dense + sparse
+    ├── reranking/
+    │   └── bge_reranker.py       # Cross-encoder reranking
+    └── pipelines/
+        ├── generator.py          # Qwen2.5-14B answer generation
+        └── rag_pipeline.py       # End-to-end pipeline
 
 ## Setup
 
