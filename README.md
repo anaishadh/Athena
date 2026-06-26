@@ -15,12 +15,26 @@ Query → Hybrid Retrieval (Dense + BM25) → Reranking → Generation → Evalu
 
 ## Benchmark Results
 
-| Pipeline | Faithfulness | Relevancy | Correctness |
-|---|---|---|---|
-| Dense only | 0.52 | 0.73 | 0.55 |
-| Hybrid + Reranked | 0.59 | 0.71 | 0.62 |
+### Chunking Strategy Comparison
+| Chunker | Faithfulness | Relevancy | Correctness | Chunks | Ingest Time |
+|---|---|---|---|---|---|
+| fixed | 0.63 | 0.86 | 0.70 | 2795 | 42 min |
+| sliding | 0.54 | 0.83 | 0.66 | 3377 | 48 min |
+| recursive | 0.55 | 0.77 | 0.61 | 2805 | 42 min |
+| metadata-aware | 0.48 | 0.72 | 0.55 | 2805 | 71 min |
+| parent-child | 0.64 | 0.76 | 0.69 | 4845 | 70 min |
+| semantic | 0.65 | 0.80 | 0.69 | 10670 | 101 min |
 
-Hybrid retrieval with reranking improves correctness by +12.7% over dense-only retrieval.
+### Retrieval Strategy Comparison
+| Retriever | Faithfulness | Relevancy | Correctness |
+|---|---|---|---|
+| dense | 0.40 | 0.66 | 0.51 |
+| bm25 | 0.53 | 0.83 | 0.66 |
+| hybrid (RRF) | 0.62 | 0.78 | 0.66 |
+| hyde | 0.63 | 0.79 | 0.64 |
+| multi-query | 0.60 | **0.87** | 0.68 |
+
+All experiments tracked in MLflow. Multi-query retrieval achieves highest relevancy (0.87). BM25 outperforms dense on this terminology-heavy corpus, confirming that exact keyword matching is critical for technical document retrieval.
 
 ## Tech Stack
 
@@ -36,20 +50,37 @@ Hybrid retrieval with reranking improves correctness by +12.7% over dense-only r
 
 ## Project Structure
 
-    src/athena/
-    ├── ingestion/
-    │   ├── loaders/        # PDF loading via PyMuPDF
-    │   ├── chunkers/       # Fixed, sliding, recursive, metadata-aware
-    │   └── embedders/      # BGE-M3 open-source embedder
-    ├── retrieval/
-    │   ├── dense_retriever.py    # Semantic search via Qdrant
-    │   ├── bm25_retriever.py     # Exact-term sparse retrieval
-    │   └── hybrid_retriever.py   # RRF fusion of dense + sparse
-    ├── reranking/
-    │   └── bge_reranker.py       # Cross-encoder reranking
-    └── pipelines/
-        ├── generator.py          # Qwen2.5-14B answer generation
-        └── rag_pipeline.py       # End-to-end pipeline
+```
+src/athena/
+├── core.py                          # Shared data models (Document, Chunk, RetrievalResult)
+├── ingestion/
+│   ├── loaders/
+│   │   └── pdf_loader.py            # PDF text extraction via PyMuPDF
+│   ├── chunkers/
+│   │   ├── fixed.py                 # Fixed-size word count chunking
+│   │   ├── sliding.py               # Sliding window with overlap
+│   │   ├── recursive.py             # Recursive paragraph → sentence splitting
+│   │   ├── semantic.py              # Embedding similarity breakpoint chunking
+│   │   ├── parent_child.py          # Small child chunks, large parent context
+│   │   └── metadata_aware.py        # Wraps any chunker, prepends paper metadata
+│   └── embedders/
+│       └── bge.py                   # BAAI/bge-m3 local GPU embedder
+├── retrieval/
+│   ├── qdrant_store.py              # Qdrant vector store (HNSW, cosine)
+│   ├── dense_retriever.py           # Semantic search via BGE-M3 + Qdrant
+│   ├── bm25_retriever.py            # Exact-term sparse retrieval
+│   ├── hybrid_retriever.py          # Dense + BM25 fusion via RRF (k=60)
+│   ├── hyde_retriever.py            # Hypothetical document embeddings
+│   └── multi_query_retriever.py     # N alternative phrasings via RRF
+├── reranking/
+│   └── bge_reranker.py              # BAAI/bge-reranker-v2-m3 cross-encoder
+├── pipelines/
+│   ├── generator.py                 # Qwen2.5-14B generation via Ollama
+│   └── rag_pipeline.py              # End-to-end hybrid → rerank → generate
+├── evaluation/                      # (in progress)
+├── agents/                          # (in progress)
+└── api/                             # (in progress)
+```
 
 ## Setup
 
@@ -85,7 +116,13 @@ uv run python scripts/run_evaluation.py
 
 ## Evaluation
 
-20 manually curated golden questions with reference answers. Each pipeline run is scored by an LLM judge (Qwen2.5-14B) on three dimensions and logged to MLflow for comparison.
+20 manually curated golden questions with reference answers. Each pipeline variant is scored by an LLM judge (Qwen2.5-14B) on three dimensions:
+
+- **Faithfulness** — are all claims supported by retrieved context?
+- **Relevancy** — does the answer address the question?
+- **Correctness** — does the answer align with the ground truth?
+
+All runs logged to MLflow for side-by-side comparison.
 
 ```bash
 uv run mlflow ui --port 5000
