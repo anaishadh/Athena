@@ -1,0 +1,369 @@
+{
+  "run_name": "metadata",
+  "num_questions": 20,
+  "avg_faithfulness": 0.48,
+  "avg_relevancy": 0.72,
+  "avg_correctness": 0.5525,
+  "results": [
+    {
+      "question": "What are the main evaluation metrics used for RAG systems?",
+      "ground_truth": "RAG systems are evaluated using retrieval metrics like Precision@k, Recall@k, MRR, and NDCG, and generation metrics including Faithfulness, Answer Relevancy, Context Precision, and Context Recall. Faithfulness measures whether all claims in the answer are supported by the retrieved context.",
+      "answer": "The main evaluation metrics used for RAG (Retrieval-Augmented Generation) systems include:\n\n1. **Faithfulness**: Evaluates how closely the generated response adheres to the provided context.\n2. **Answer Relevancy**: Assesses how well the generated answer addresses the user's query or question.\n3. **Context Precision**: Measures the relevance and accuracy of the context used in generating the response.\n4. **Context Recall**: Checks if all relevant information from the retrieval phase is utilized effectively during generation.\n\nThese metrics are part of the RAGAS framework, which employs LLM-based judges to evaluate response quality without requiring ground truth labels.",
+      "sources": [
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The answer correctly identifies the main evaluation metrics for RAG systems: Faithfulness, Answer Relevancy, Context Precision, and Context Recall as specified by the ground truth. It also accurately mentions that these metrics are part of the RAGAS framework which uses LLM-based judges to evaluate response quality without requiring explicit ground truth labels."
+      }
+    },
+    {
+      "question": "What is the difference between dense retrieval and sparse retrieval?",
+      "ground_truth": "Dense retrieval uses neural embeddings to capture semantic similarity between queries and documents. Sparse retrieval like BM25 uses exact term matching with TF-IDF weighting. Dense retrieval handles paraphrase and synonyms better while sparse retrieval excels at exact keyword matching and rare terms.",
+      "answer": "In the context provided, dense retrieval and sparse retrieval differ primarily in how they represent and process information:\n\n- **Sparse Retrieval**: This approach uses methods like BM25 where documents and queries are represented as sparse vectors with dimensions corresponding to the collection's vocabulary. Sparse models often rely on term statistics (like frequency or positional data) for weighting terms, which can lead to issues such as vocabulary mismatch due to not considering semantic matches directly.\n\n- **Dense Retrieval**: This approach represents both queries and documents in a dense fixed-length vector space (e.g., 768 dimensions). Dense models leverage learned representations from neural network architectures. They are better at capturing semantic similarities but require access to target data for training, often through intermediate steps on large datasets.\n\nThe context also mentions that sparse retrieval generally outperforms zero-shot dense retrieval in scenarios where the model has not been fine-tuned with specific dataset-related information (F3). However, when a dense model is trained with a substantial amount of diverse data before fine-tuning on target data, it can surpass strong sparse baselines (F4).",
+      "sources": [
+        "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?",
+        "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?",
+        "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?",
+        "EVOR: Evolving Retrieval for Code Generation",
+        "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The provided answer accurately captures the essence of dense and sparse retrieval as described in the retrieved context, matching the ground truth given. It correctly identifies key points such as representation method (sparse vs dense vector space), handling of semantic similarity, and performance in zero-shot versus fine-tuned scenarios."
+      }
+    },
+    {
+      "question": "How does the HNSW algorithm enable fast approximate nearest neighbor search?",
+      "ground_truth": "HNSW builds a multi-layer graph where upper layers provide coarse navigation with long-range connections and lower layers provide fine-grained local search. Queries start at the top layer and navigate down, achieving logarithmic search complexity instead of linear brute force comparison.",
+      "answer": "The HNSW (Hierarchical Navigable Small World) algorithm enables fast approximate nearest neighbor search through a hierarchical graph structure with multiple layers. Each layer forms a small-world graph that captures varying levels of data proximity, allowing for efficient traversal from sparse upper layers to dense lower layers where the nearest neighbors reside. This hierarchical structure supports logarithmic search complexity while maintaining near-optimal recall through navigation across layers. The algorithm uses critical parameters such as M (maximum number of connections per node), ef_construction (size of the dynamic candidate list during graph construction), and ef_search (size of the dynamic candidate list during search) to guide efficient traversal and reduce computational load, thereby accelerating the approximate nearest neighbor search process.",
+      "sources": [
+        "pHNSW: PCA-Based Filtering to Accelerate HNSW Approximate Nearest Neighbor Search",
+        "AQR-HNSW: Accelerating Approximate Nearest Neighbor Search via Density-aware Quantization and Multi-stage Re-ranking",
+        "AQR-HNSW: Accelerating Approximate Nearest Neighbor Search via Density-aware Quantization and Multi-stage Re-ranking",
+        "AQR-HNSW: Accelerating Approximate Nearest Neighbor Search via Density-aware Quantization and Multi-stage Re-ranking",
+        "LANNS: A Web-Scale Approximate Nearest Neighbor Lookup System"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.6,
+        "correctness": 0.3,
+        "reasoning": "The generated answer does partially address the hierarchical structure and logarithmic search complexity of HNSW, which is somewhat relevant to the question. However, it introduces concepts (M, ef_construction, ef_search) not mentioned in the context provided and lacks detailed explanation about how upper layers provide coarse navigation while lower layers offer fine-grained local search. The faithfulness score is low because key details from the ground truth are missing or inaccurately represented."
+      }
+    },
+    {
+      "question": "What is Reciprocal Rank Fusion and why is it used in hybrid retrieval?",
+      "ground_truth": "RRF combines ranked lists from multiple retrievers using the formula 1/(k+rank) where k=60. It is used because scores from different retrievers are not comparable in absolute terms. RRF only uses rank positions, making it robust to score scale differences between dense and sparse retrievers.",
+      "answer": "Reciprocal Rank Fusion (RRF) is a method used to combine rankings from multiple sources or methods into a single ranking. It is particularly useful in hybrid retrieval scenarios where both dense vector search (for semantic similarity) and sparse keyword-based search are employed, as it helps integrate the strengths of each approach without requiring extensive hyperparameter tuning.\n\nIn hybrid retrieval systems, RRF is utilized to aggregate results from different retrieval methods, such as dense embeddings and BM25 sparse vectors, which address complementary aspects: dense methods excel at capturing semantic similarity while sparse methods are better for precise keyword matches. By using RRF with a standard parameter setting like k=60, the system can effectively combine these diverse ranking signals into one robust list of relevant documents.",
+      "sources": [
+        "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.7,
+        "answer_relevancy": 1.0,
+        "correctness": 0.6,
+        "reasoning": "The answer is relevant to the question and does provide a general explanation of Reciprocal Rank Fusion (RRF). However, it lacks specific details about the RRF formula used (1/(k+rank) with k=60) and why this particular approach is robust against score scale differences between dense and sparse retrievers. The answer also doesn't mention that RRF helps in combining ranked lists from multiple sources into a single ranking without requiring extensive hyperparameter tuning, which is an important aspect of its utility."
+      }
+    },
+    {
+      "question": "What is the role of a cross-encoder reranker in a RAG pipeline?",
+      "ground_truth": "A cross-encoder reranker takes a query and document together as input and produces a relevance score. Unlike bi-encoders that embed query and document separately, cross-encoders capture fine-grained interactions between query and document tokens, producing more accurate relevance scores at the cost of higher latency.",
+      "answer": "The role of a cross-encoder reranker in a RAG (Retrieval-Augmented Generation) pipeline includes:\n\n1. **Reranking Documents**: After an initial retrieval step using bi-encoders, the cross-encoder reranker reevaluates and fine-tunes the order of retrieved documents or passages based on their relevance to the query.\n\n2. **Enhancing Accuracy**: The use of cross-encoders in this stage significantly improves the accuracy of document ranking by considering full transformer inference for each query-document pair instead of simple vector comparisons.\n\n3. **Improving Robustness and Fidelity**: It ensures that only high-quality evidence is passed to the generation module, thereby improving the robustness of the system against noisy retrievals.\n\n4. **Balancing Computational Efficiency and Accuracy**: While cross-encoder reranking introduces additional computational complexity compared to bi-encoders, it strikes a balance by providing more accurate rankings than straightforward vector comparisons alone.\n\nIn summary, the cross-encoder reranker plays a critical role in enhancing the precision and relevance of retrieved documents or passages within the RAG pipeline.",
+      "sources": [
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.6,
+        "correctness": 0.4,
+        "reasoning": "The answer provided partially addresses the question and includes some correct aspects of a cross-encoder reranker's role in RAG pipelines but misses critical details specified in both the ground truth and context documents. It correctly mentions that it enhances accuracy and improves robustness by considering full transformer inference for each query-document pair, which aligns with the retrieved context. However, it does not explicitly state the production of relevance scores or capture fine-grained interactions between query and document tokens as detailed in the ground truth. Additionally, the answer includes information about balancing computational efficiency and accuracy but lacks specificity regarding marginalization strategy and cross-encoder integration discussed in the context."
+      }
+    },
+    {
+      "question": "What are the chunking strategies used in RAG systems?",
+      "ground_truth": "Common chunking strategies include fixed-size chunking which splits by token count, sliding window chunking which adds overlap between chunks, recursive chunking which splits on paragraph then sentence boundaries, semantic chunking which groups sentences by embedding similarity, and parent-child chunking which indexes small chunks but retrieves larger parent chunks.",
+      "answer": "The context provided discusses several chunking strategies relevant to RAG (Retrieval-Augmented Generation) systems:\n\n1. **Fixed-size Chunking**: Documents are divided into segments of fixed sizes, which is a straightforward and simple approach but may not always preserve semantic coherence effectively.\n\n2. **Overlapping Chunking**: This method involves creating chunks that overlap with each other, potentially preserving more context than fixed-size chunking at the cost of increased implementation complexity and computational overhead.\n\n3. **Late Chunking**: Rather than segmenting documents before embedding (early chunking), late chunking embeds the entire document first and then segments it later. This approach aims to preserve global context better but requires subsequent segmentation after full document embeddings are generated.\n\n4. **Semantic Segmentation**: Although not explicitly categorized in the table, this involves detecting semantic breakpoints within texts for more adaptive segmenting based on shifts in meaning rather than fixed-size or overlapping methods.\n\n5. **Dynamic Segmenting Models**: These models adaptively adjust chunk sizes based on content characteristics, offering a flexible approach to chunking that can optimize retrieval efficiency and response generation dynamically.\n\nThe context mentions these strategies but does not provide an exhaustive list of all possible chunking methods used in RAG systems. It highlights the trade-offs between different approaches concerning semantic preservation, implementation complexity, computational overhead, and best use cases.",
+      "sources": [
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.5,
+        "correctness": 0.1,
+        "reasoning": "The generated answer does not strictly adhere to the provided context or ground truth, leading to a low score in faithfulness and correctness. It mentions some chunking strategies but fails to accurately represent them as described in the ground truth (e.g., sliding window, recursive). Additionally, it introduces concepts such as 'overlapping chunking' which are not clearly mentioned or defined within the context provided. The answer is somewhat relevant to the question on RAG systems, but its accuracy and completeness are significantly lacking."
+      }
+    },
+    {
+      "question": "What is hallucination in LLMs and how does RAG reduce it?",
+      "ground_truth": "Hallucination is when an LLM generates plausible-sounding but factually incorrect information not supported by evidence. RAG reduces hallucination by providing retrieved context and instructing the model to only use that context when answering, grounding responses in retrieved documents rather than parametric memory.",
+      "answer": "Hallucination in Large Language Models (LLMs) refers to the generation of plausible yet factually incorrect information. This can occur because LLMs' knowledge is static, confined to their training data, leading them to generate responses that are coherent but not necessarily accurate or grounded in current facts.\n\nRetrieval-Augmented Generation (RAG) reduces hallucination by grounding the model\u2019s generation process on information retrieved from external knowledge bases. When answering a query, RAG systems use a retriever component to fetch relevant documents and integrate this evidence with the LLM's internal context during response generation. This ensures that the responses are more accurate and timely, reducing the likelihood of generating incorrect or outdated information.",
+      "sources": [
+        "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation",
+        "RAGPart & RAGMask: Retrieval-Stage Defenses Against Corpus Poisoning in Retrieval-Augmented Generation",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "Exploring Advanced Large Language Models with LLMsuite",
+        "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 1.0,
+        "correctness": 0.25,
+        "reasoning": "The answer addresses the question regarding hallucination in LLMs and RAG's role, but it lacks details on how RAG reduces hallucination by providing retrieved context for grounding responses. It also misses out on mentioning iterative refinement or adaptive strategies as discussed in FAIR-RAG that aim to reduce hallucinations further. The definition of hallucination is partially correct but does not fully capture the essence from the ground truth provided."
+      }
+    },
+    {
+      "question": "What is BGE-M3 and what makes it different from other embedding models?",
+      "ground_truth": "BGE-M3 is an embedding model from BAAI that supports multi-functionality producing dense, sparse and multi-vector representations simultaneously, multi-linguality supporting over 100 languages, and multi-granularity with a context window up to 8192 tokens. Most embedding models only produce dense vectors with shorter context windows.",
+      "answer": "BGE-M3 is described as a premier unified model that enables retrieval of dense, sparse, and multi-vector data across over 100 languages with a maximum capacity of 8192 tokens. What sets BGE-M3 apart from other embedding models includes its ability to integrate three retrieval paradigms: dense retrieval for semantic matching, sparse retrieval for exact term matching, and multi-vector retrieval for fine-grained representation. This model's versatility in handling various types of data retrieval (dense, sparse, multi-vector) across numerous languages makes it a standout choice for retrieval-augmented generation tasks.",
+      "sources": [
+        "Utilizing Metadata for Better Retrieval-Augmented Generation",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "MTEB-French: Resources for French Sentence Embedding Evaluation and Analysis",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The generated answer accurately reflects the information provided in the retrieved context and aligns with the ground truth. It correctly highlights BGE-M3's capabilities of handling dense, sparse, and multi-vector data across multiple languages and its unique ability to integrate different retrieval paradigms."
+      }
+    },
+    {
+      "question": "What is the ReAct agent pattern?",
+      "ground_truth": "ReAct interleaves reasoning and acting in a loop. The agent generates a thought about what to do, takes an action by calling a tool, observes the result, then reasons again based on the observation. This continues until the agent has enough information to produce a final answer.",
+      "answer": "The ReAct (Reasoning and Acting) agent pattern involves an iterative process where an agent engages in reasoning about what actions to take next before executing those actions. The cycle of this pattern can be described as follows:\n\n1. **Think (reason)**: Formulate the next step of the plan or determine what action is needed based on the current state.\n2. **Act**: Apply the generated command to the environment.\n3. **Observe**: Integrate environmental feedback into reasoning for the next iteration.\n\nThis pattern supports decision-making tasks by enabling agents to reflect upon and reason through their actions before proceeding, facilitating better performance in complex environments or tasks that require planning ahead.",
+      "sources": [
+        "ReAct: Synergizing Reasoning and Acting in Language Models",
+        "Reason-Plan-ReAct: A Reasoner-Planner Supervising a ReAct Executor for Complex Enterprise Tasks",
+        "Reason-Plan-ReAct: A Reasoner-Planner Supervising a ReAct Executor for Complex Enterprise Tasks",
+        "ReAct: Synergizing Reasoning and Acting in Language Models",
+        "Reason-Plan-ReAct: A Reasoner-Planner Supervising a ReAct Executor for Complex Enterprise Tasks"
+      ],
+      "scores": {
+        "faithlessness": 1.0,
+        "irrelevance": 1.0,
+        "incorrectness": 1.0,
+        "reasoning": "The answer provided does not fully capture the nuances described in both contexts and ground truth regarding ReAct's interplay between reasoning and acting. It lacks specifics such as the iterative loop structure that continuously refines actions based on previous outcomes, which is a critical aspect of the ReAct framework. Additionally, it doesn't mention how ReAct differs from other approaches like IM by allowing flexible reasoning patterns, nor does it refer to the experimental evidence showing its superior performance over simpler reaction-based methods."
+      }
+    },
+    {
+      "question": "What is RAGAS and what metrics does it provide?",
+      "ground_truth": "RAGAS is a Python framework for evaluating RAG systems. It provides Faithfulness which measures if answers are grounded in context, Answer Relevancy which measures if the answer addresses the question, Context Precision which measures if retrieved chunks are relevant, and Context Recall which measures if all necessary information was retrieved.",
+      "answer": "RAGAS (Retrieval-Augmented Generation Assessment System) is a comprehensive evaluation framework designed to assess Retrieval-Augmented Generation systems without relying on ground truth labels. It employs Large Language Model (LLM)-based judges to evaluate response quality through four core metrics:\n1. Faithfulness\n2. Answer relevancy \n3. Context precision\n4. Context recall\n\nThe RAGAS framework also utilizes evaluation modules from LlamaIndex, which include correctness, semantic similarity, and guideline adherence in addition to the core metrics mentioned above.",
+      "sources": [
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.8,
+        "correctness": 0.5,
+        "reasoning": "The answer mentions the core metrics provided by RAGAS but introduces additional evaluation modules from LlamaIndex which were not part of the ground truth description. It also omits mentioning that these metrics assess whether answers are grounded in context (faithfulness), if retrieved chunks are relevant (context precision), and if all necessary information was retrieved (context recall). The answer relevancy is partially correct as it does mention key components but lacks detail on what each metric entails, hence the score of 0.8 for partial relevance."
+      }
+    },
+    {
+      "question": "What is the difference between a bi-encoder and a cross-encoder?",
+      "ground_truth": "A bi-encoder embeds the query and document independently into vectors and computes similarity via dot product or cosine similarity. This enables fast pre-computation of document embeddings. A cross-encoder processes the query and document together through a transformer, capturing token-level interactions for higher accuracy but cannot pre-compute document representations.",
+      "answer": "The key differences between a bi-encoder and a cross-encoder are in their operational efficiency, inference process, and application within retrieval systems:\n\n1. **Bi-Encoder**:\n   - Uses two separate encoders to encode queries and documents independently.\n   - This allows for the creation of pre-computed document embeddings which can be indexed offline, enabling fast search at query time through efficient maximum inner product search.\n   - Generally more computationally efficient during inference since only one forward pass is required per input.\n\n2. **Cross-Encoder**:\n   - Treats each (query-document) pair as a single sequence and uses a transformer-based model to compute relevance scores directly.\n   - Requires full transformer inference for each query-document pair, making it less efficient in terms of computational resources compared to bi-encoders.\n   - Provides higher precision and better performance but is not typically used as the initial retriever due to its high latency; instead, it serves well as a fine reranker.\n\nIn summary, while bi-encoders offer faster inference times suitable for indexing large document sets, cross-encoders provide more accurate relevance scoring through comprehensive context understanding, albeit at higher computational costs.",
+      "sources": [
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "A Sentence is Worth 128 Pseudo Tokens: A Semantic-Aware Contrastive Learning Framework for Sentence Embeddings",
+        "miCSE: Mutual Information Contrastive Learning for Low-shot Sentence Embeddings",
+        "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?",
+        "Analysing the Robustness of Dual Encoders for Dense Retrieval Against Misspellings"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The generated answer accurately summarizes the key differences between bi-encoders and cross-encoders as described in the retrieved context, aligning well with the ground truth provided."
+      }
+    },
+    {
+      "question": "What is semantic chunking and when should it be used?",
+      "ground_truth": "Semantic chunking splits documents by detecting breakpoints where the embedding similarity between consecutive sentences drops below a threshold. This creates chunks that are semantically coherent rather than arbitrarily cut. It should be used when retrieval quality is the priority and ingestion speed is not a constraint.",
+      "answer": "Semantic chunking is a method of dividing documents into chunks based on the semantic structure of the text rather than fixed-size segments. It dynamically adjusts boundaries to capture meaningful content, improving the quality of embeddings generated compared to uniform-sized chunks that may not respect semantic coherence.\n\nSemantic chunking should be used in scenarios where maintaining context and ensuring that each chunk is semantically coherent is crucial for downstream tasks such as retrieval or generation. This method is particularly beneficial when dealing with long texts, complex documents, or when preserving the integrity of the document's meaning across segments is essential to achieve better performance on knowledge-intensive NLP tasks like question answering.",
+      "sources": [
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.8,
+        "correctness": 0.6,
+        "reasoning": "The generated answer provides a general overview of semantic chunking but lacks specific details about how the method works (e.g., detecting breakpoints based on embedding similarity). It does not mention that semantic chunking should be used when retrieval quality is prioritized and ingestion speed is not an issue, which aligns with the ground truth. Additionally, it includes claims not directly supported by the context provided."
+      }
+    },
+    {
+      "question": "What is contextual retrieval and how does it improve RAG performance?",
+      "ground_truth": "Contextual retrieval prepends a brief context description to each chunk before embedding, explaining what the chunk is about within the larger document. Anthropic showed this improves retrieval recall by 35 to 49 percent because chunks become self-contained and searchable without requiring the full document context.",
+      "answer": "Contextual retrieval is a technique that enhances the traditional document segmentation process in Retrieval-Augmented Generation (RAG) systems. Instead of simply dividing documents into chunks, contextual retrieval enriches each chunk with additional context from the entire document before embedding them. This means that even when documents are split into smaller segments, each piece retains a broader understanding of the content it belongs to.\n\nThe improvement comes from several aspects:\n- **Preserving Contextual Integrity**: By ensuring each chunk contains information about its place within the larger document, contextual retrieval helps maintain semantic coherence and context during generation.\n- **Enhanced Relevance and Accuracy**: The additional context provided ensures that chunks are more relevant and accurate in their content, making it easier for the model to retrieve the correct information when generating responses.\n\nIn essence, contextual retrieval improves RAG performance by addressing issues related to loss of context and incomplete information retrieval, which can occur with traditional fixed-size chunking methods.",
+      "sources": [
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.8,
+        "correctness": 0.4,
+        "reasoning": "The generated answer does address the concept of contextual retrieval and its benefits in improving RAG performance, making it relevant to the question (high relevancy score). However, it lacks precision in explaining how contextual retrieval specifically prepends context descriptions for embedding (faithfulness) and omits key quantitative improvements mentioned in the ground truth (correctness). Additionally, there's a misalignment with providing specific details about the 35-49% improvement in recall as stated in the ground truth."
+      }
+    },
+    {
+      "question": "What is the lost in the middle problem in LLMs?",
+      "ground_truth": "Lost in the middle refers to the finding that LLMs perform worse at using information placed in the middle of a long context compared to information at the beginning or end. This means that when passing many retrieved chunks to an LLM, the most relevant chunks should be placed at the start or end of the context.",
+      "answer": "The \"lost in the middle\" problem refers to a phenomenon where the position of information within the context significantly affects RAG (Retrieval-Augmented Generation) performance. Specifically, it means that the order and placement of relevant chunks or pieces of information can greatly influence how effectively an LLM utilizes this information for generating accurate responses or completing tasks. If critical information is placed in less attended positions within a long context window, it might be overlooked by the model, leading to suboptimal performance despite having the necessary data available. This issue highlights the need for optimizing both the selection and ordering of chunks retrieved during the RAG process.",
+      "sources": [
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "EVOR: Evolving Retrieval for Code Generation",
+        "Joint Music and Language Attention Models for Zero-shot Music Tagging",
+        "Joint Music and Language Attention Models for Zero-shot Music Tagging",
+        "Interactive Learning for LLM Reasoning"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.6,
+        "correctness": 0.4,
+        "reasoning": "The generated answer partially captures the essence of the 'lost in the middle' problem but lacks precision and specific details that align with the ground truth or context provided. The faithfulness score is low because it introduces concepts not directly supported by the given context, such as a broad mention of optimizing chunk selection and ordering without specifying the unique challenge of LLMs' attention mechanism towards information position. The relevancy is moderate since it addresses the general concept but does not fully align with the specific findings presented in the ground truth or context. Correctness is also moderate because while it captures that the placement of information affects performance, it misses the explicit mention of LLM's worse performance in using middle-positioned information compared to information at the beginning or end."
+      }
+    },
+    {
+      "question": "What is BM25 and how does it score documents?",
+      "ground_truth": "BM25 is a lexical retrieval algorithm that scores documents using term frequency and inverse document frequency. Rare terms get higher weight via IDF. Term frequency is saturated so repeated occurrences have diminishing returns. Document length normalization prevents longer documents from being unfairly favored.",
+      "answer": "BM25 is a ranking function used in information retrieval that builds upon Term Frequency-Inverse Document Frequency (TF-IDF). It emphasizes precise lexical matches by adjusting the weight of terms based on their frequency within a document (term frequency) and across all documents in the collection (inverse document frequency). This method helps to address limitations where embedding models might overlook exact matches, which is particularly useful for unique identifiers or technical terms. In scoring documents, BM25 calculates scores that reflect how relevant each document is to a query based on term frequency adjustments and other factors like the presence of important terms in key positions within documents.",
+      "sources": [
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "LLandMark: A Multi-Agent Framework for Landmark-Aware Multimodal Interactive Video Retrieval",
+        "On Single and Multiple Representations in Dense Passage Retrieval",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+        "On Single and Multiple Representations in Dense Passage Retrieval"
+      ],
+      "scores": {
+        "faithfulness": 0.2,
+        "answer_relevancy": 0.4,
+        "correctness": 0.3,
+        "reasoning": "The generated answer mentions BM25's use in ranking functions and its focus on precise lexical matches, but it does not include key details such as the saturation of term frequency or document length normalization. It also lacks specifics about how rare terms receive higher weight via IDF. The context provided talks more about dense retrieval systems and the integration with BM25 rather than explaining BM25 itself in detail."
+      }
+    },
+    {
+      "question": "What is the difference between faithfulness and answer relevancy in RAG evaluation?",
+      "ground_truth": "Faithfulness measures whether all claims in the generated answer are supported by the retrieved context, detecting hallucinations. Answer relevancy measures whether the answer actually addresses the user question. An answer can be faithful but irrelevant if it discusses context that does not answer the question, or relevant but unfaithful if it adds information not in the context.",
+      "answer": "In the context of Retrieval-Augmented Generation (RAG) systems, **faithfulness** and **answer relevancy** are two distinct but related quality aspects used to evaluate the performance of generated answers. Here's how they differ:\n\n- **Faithfulness**: This refers to whether an answer is grounded in the given context. A faithful answer should not introduce new information that cannot be deduced from or supported by the provided context. It ensures that claims made in the answer can logically follow from or be directly stated within the context.\n\n- **Answer Relevancy (Relevance)**: This aspect focuses on whether an answer directly addresses and is appropriate for a given question. A relevant answer should not include redundant information and should avoid being incomplete with respect to addressing the user's query. It ensures that the generated response is pertinent to the question asked, without unnecessary details or deviations from the topic.\n\nTo summarize:\n- **Faithfulness** emphasizes consistency between an answer and its context.\n- **Answer Relevance (Relevancy)** stresses directness and pertinence of the answer to the user's question.",
+      "sources": [
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation",
+        "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation",
+        "Ragas: Automated Evaluation of Retrieval Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The generated answer accurately defines faithfulness and answer relevancy in the context of RAG systems, aligning perfectly with the provided ground truth without introducing any unsupported claims or irrelevant information."
+      }
+    },
+    {
+      "question": "What is ColBERT and how does it differ from standard dense retrieval?",
+      "ground_truth": "ColBERT is a multi-vector retrieval model that produces one embedding per token rather than one embedding per document. Relevance is computed via MaxSim which takes the maximum similarity between each query token and all document tokens. This captures fine-grained token level interactions that are lost when pooling into a single vector.",
+      "answer": "ColBERT is a specific implementation of multiple representation models used in dense passage retrieval. In contrast to single representation approaches (like ANCE) that rely on a single embedding for an entire document or query, ColBERT assigns an individual embedding to each token within the text. At indexing time, this results in storing many more embeddings per document because each token gets its own representation, leading to larger index sizes compared to models like ANCE which store only one embedding (usually derived from BERT's [CLS] token) for a whole passage or query.\n\nWhen retrieving passages, ColBERT uses these multiple embeddings to find approximate nearest neighbours through efficient indexing techniques such as FAISS. After identifying candidate documents with an approximate search process over the large embedding index, exact re-scoring is performed on this subset to determine final rankings of documents relevant to the input query. This two-step process allows ColBERT to balance between handling complex queries and maintaining practical retrieval efficiency despite the overhead associated with processing multiple embeddings per passage.",
+      "sources": [
+        "On Single and Multiple Representations in Dense Passage Retrieval",
+        "On Single and Multiple Representations in Dense Passage Retrieval",
+        "On Single and Multiple Representations in Dense Passage Retrieval",
+        "On Single and Multiple Representations in Dense Passage Retrieval",
+        "On Single and Multiple Representations in Dense Passage Retrieval"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The answer accurately captures the key points about ColBERT from the retrieved context and aligns well with the ground truth provided. It correctly notes that ColBERT uses multiple representations (embeddings per token) rather than a single representation like ANCE, which uses embeddings derived from BERT's [CLS] token for whole documents or queries. The answer also mentions that ColBERT performs approximate nearest neighbor search followed by exact re-scoring of candidates, as described in the context and consistent with the ground truth."
+      }
+    },
+    {
+      "question": "What is HyDE and why does it improve retrieval?",
+      "ground_truth": "HyDE or Hypothetical Document Embeddings generates a hypothetical answer to the query using an LLM and embeds that answer rather than the original query. This works because the hypothetical answer is in the same form as the documents in the corpus, making it closer in embedding space to relevant documents than a question would be.",
+      "answer": "The provided context mentions HYDE but does not provide a detailed explanation of what HYDE is or how it specifically improves retrieval. The information given states that HYDE, along with other methods like RAPTOR, relies on costly LLM calls to generate hypotheses or summarize content, which leads to inefficient token usage. However, the context does not explain the mechanism by which HYDE purportedly improves retrieval performance.\n\nTo directly answer your question based on the provided context:\n- The context lacks a detailed explanation of what HYDE is.\n- Regarding improvement: According to the given information, HYDE underperforms compared to CARROT due to its inefficient token usage, but it does not provide specific details on how or why HYDE improves retrieval.\n\nThus, the exact mechanism and reasons for any improvements provided by HYDE are not detailed in the context you've shared.",
+      "sources": [
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "Utilizing Metadata for Better Retrieval-Augmented Generation",
+        "On Single and Multiple Representations in Dense Passage Retrieval"
+      ],
+      "scores": {
+        "faithfulness": 0.5,
+        "answer_relevancy": 0.3,
+        "correctness": 0.2,
+        "reasoning": "The answer partially addresses the question by mentioning that HYDE relies on costly LLM calls and leads to inefficient token usage, but it does not provide the detailed explanation of what HyDE is or how it improves retrieval according to the ground truth. The faithfulness score is low because while parts of the response relate to the context provided, it omits crucial information about Hypothetical Document Embeddings which generates a hypothetical answer embedding rather than using original queries for better relevance with documents in the corpus."
+      }
+    },
+    {
+      "question": "What is Corrective RAG and what problem does it solve?",
+      "ground_truth": "Corrective RAG evaluates the quality of retrieved documents before generation and takes corrective action when retrieval quality is low. Each retrieved document is classified as correct, ambiguous, or incorrect. If all documents are irrelevant the system falls back to web search or broader retrieval rather than generating an answer from poor context.",
+      "answer": "Corrective RAG is mentioned as a framework that incorporates a post-retrieval correction phase where retrieved documents are assessed and refined based on their relevance and factual consistency by using an evaluator. This method aims to enhance retrieval precision by improving the quality of the retrieved information, addressing issues related to noise or inaccuracies in the initial retrieval process. However, it relies on heuristic triggers or post-hoc adjustments which may still overlook systematic evidence gaps in complex queries compared to FAIR-RAG's more principled approach.",
+      "sources": [
+        "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation",
+        "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
+        "MUST-RAG: MUSical Text Question Answering with Retrieval Augmented Generation",
+        "Engineering the RAG Stack: A Comprehensive Review of the Architecture and Trust Frameworks for Retrieval-Augmented Generation Systems",
+        "RAGPart & RAGMask: Retrieval-Stage Defenses Against Corpus Poisoning in Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0,
+        "correctness": 1.0,
+        "reasoning": "The answer is faithful to the context as it correctly describes Corrective RAG\u2019s approach of using an evaluator for post-retrieval correction and refining retrieved documents based on relevance and factual consistency. It also points out that heuristic triggers or adjustments may overlook systematic gaps in complex queries, which aligns with the information provided. The answer addresses the question about what Corrective RAG is and how it solves problems related to initial retrieval quality issues. Lastly, the answer directly correlates with the ground truth provided."
+      }
+    },
+    {
+      "question": "What is the parent-child chunking strategy?",
+      "ground_truth": "Parent-child chunking indexes small child chunks for precise retrieval but stores larger parent chunks in metadata. When a child chunk is retrieved its parent chunk is returned as context. This combines the retrieval precision of small chunks with the richer context of larger chunks for generation.",
+      "answer": "The provided context describes several chunking strategies (event-based, time-based, visit-level, care-stage) but does not mention a \"parent-child\" chunking strategy specifically. Since there's no direct reference or description of such a strategy in the given information, I cannot provide an answer based on that alone.\n\nHowever, if we infer from how other strategies are described and considering common practices in data processing (such as hierarchical structures), one might think about a \"parent-child\" chunking strategy as a method where chunks (or events/segments) at higher levels represent broader or more inclusive information compared to their children. Children would then be more granular segments of the parent, possibly representing specific instances, times, visits, or stages within a larger context.\n\nFor example:\n- A \"parent\" chunk could refer to an overall hospital admission period.\n- The \"children\" chunks might correspond to individual days, treatments, or tests performed during that admission.\n\nBut this interpretation would be speculative since the exact description of such a strategy is not present in the provided information.",
+      "sources": [
+        "EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records",
+        "EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "CARROT: A Learned Cost-Constrained Retrieval Optimization System for RAG",
+        "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation"
+      ],
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "correctness": 0.0,
+        "reasoning": "The answer does not adhere to the provided context and ground truth as it speculates about a 'parent-child' chunking strategy that is not mentioned or described in the retrieved context. The reasoning offered is an interpretation rather than a direct extraction from the given data, which focuses on different types of chunking strategies (event-based, time-based, visit-level, care-stage) for Electronic Health Records."
+      }
+    }
+  ]
+}
