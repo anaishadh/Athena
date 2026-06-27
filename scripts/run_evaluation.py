@@ -37,7 +37,11 @@ Respond in valid JSON only:
         json={"model": model, "prompt": prompt, "stream": False},
         timeout=120,
     )
-    text = resp.json()["response"].strip()
+    resp_json = resp.json()
+    if "response" not in resp_json:
+        print(f"  ⚠ Ollama error: {resp_json}")
+        return {"faithfulness": 0.0, "answer_relevancy": 0.0, "correctness": 0.0, "reasoning": "ollama_error"}
+    text = resp_json["response"].strip()
     try:
         start = text.index("{")
         end   = text.rindex("}") + 1
@@ -56,7 +60,21 @@ def run_evaluation(pipeline: RAGPipeline, questions_path: str,
 
     for i, item in enumerate(questions, 1):
         print(f"  [{i}/{len(questions)}] {item['question'][:60]}...")
-        output = pipeline.query(item["question"])
+        try:
+            output = pipeline.query(item["question"])
+        except Exception as e:
+            print(f"     ⚠ Pipeline error: {e}")
+            results.append({
+                "question":     item["question"],
+                "ground_truth": item["ground_truth"],
+                "answer":       "",
+                "sources":      [],
+                "scores":       {"faithfulness": 0.0,
+                                 "answer_relevancy": 0.0,
+                                 "correctness": 0.0,
+                                 "reasoning": str(e)},
+            })
+            continue
         scores = llm_judge(
             question=item["question"],
             answer=output["answer"],
