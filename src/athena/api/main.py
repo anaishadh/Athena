@@ -23,6 +23,7 @@ from athena.agents.react_agent import ReActAgent
 from athena.agents.planner_executor import PlannerExecutorAgent
 from athena.agents.reflection_agent import ReflectionAgent
 from athena.agents.multi_agent import MultiAgentOrchestrator
+from athena.api.cache import SemanticCache
 
 # ── Prometheus metrics ─────────────────────────────────────────────────
 QUERY_COUNT = Counter(
@@ -47,6 +48,10 @@ AGENT_LATENCY = Histogram(
     ["agent"],
     buckets=[1.0, 5.0, 10.0, 30.0, 60.0, 120.0]
 )
+CACHE_HITS = Counter(
+    "athena_cache_hits_total",
+    "Total semantic cache hits"
+)
 
 # Global components
 components = {}
@@ -55,6 +60,8 @@ components = {}
 async def lifespan(app: FastAPI):
     print("Loading Athena components...")
     embedder  = BGEEmbedder()
+    cache = SemanticCache(embedder, threshold=0.85)
+    components["cache"] = cache
     store     = QdrantStore()
     dense     = DenseRetriever(embedder, store)
     bm25      = BM25Retriever()
@@ -129,16 +136,38 @@ def health():
 @app.post("/query", response_model=QueryResponse)
 def query(request: QueryRequest):
     pipelines = components.get("pipelines", {})
+    cache     = components.get("cache")
+
     if request.pipeline not in pipelines:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown pipeline '{request.pipeline}'. "
                    f"Choose from: {list(pipelines.keys())}"
         )
+
     start = time.time()
     try:
+        # Check semantic cache first
+        if cache:
+            cached = cache.get(request.question)
+            if cached:
+                CACHE_HITS.inc()
+                return QueryResponse(
+                    question=request.question,
+                    answer=cached["answer"],
+                    sources=cached["sources"],
+                    pipeline=f"{request.pipeline}_cached",
+                    latency_ms=round((time.time() - start) * 1000, 2),
+                )
+
         result = pipelines[request.pipeline].query(request.question)
         latency = time.time() - start
+
+        # Store in cache
+        if cache:
+            cache.set(request.question, result["answer"],
+                      result.get("sources", []))
+
         QUERY_COUNT.labels(pipeline=request.pipeline, status="success").inc()
         QUERY_LATENCY.labels(pipeline=request.pipeline).observe(latency)
         return QueryResponse(
@@ -151,6 +180,14 @@ def query(request: QueryRequest):
     except Exception as e:
         QUERY_COUNT.labels(pipeline=request.pipeline, status="error").inc()
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/cache")
+def clear_cache():
+    cache = components.get("cache")
+    if not cache:
+        raise HTTPException(status_code=503, detail="Cache not available")
+    cleared = cache.clear()
+    return {"cleared": cleared}
 
 @app.post("/agent", response_model=AgentResponse)
 def agent(request: AgentRequest):
