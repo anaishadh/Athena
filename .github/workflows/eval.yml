@@ -37,7 +37,13 @@ jobs:
           curl -fsSL https://ollama.com/install.sh | sh
           ollama serve &
           sleep 10
-          ollama pull qwen2.5:14b
+          ollama pull qwen2.5:3b
+
+      - name: Run evaluation
+        env:
+          OLLAMA_MODEL: qwen2.5:3b
+        run: |
+          uv run python scripts/run_evaluation.py
 
       - name: Ingest corpus
         run: |

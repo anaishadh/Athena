@@ -1,4 +1,5 @@
 import sys
+import os
 import json
 from pathlib import Path
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     bm25      = BM25Retriever()
     bm25.load()
     reranker  = BGEReranker()
-    generator = OllamaGenerator()
+    generator = OllamaGenerator(model=os.getenv("OLLAMA_MODEL", "qwen2.5:14b"))
     pipeline  = RAGPipeline(dense, bm25, reranker, generator)
 
     run_evaluation(

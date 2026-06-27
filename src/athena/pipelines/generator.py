@@ -33,7 +33,7 @@ Answer:"""
         response = httpx.post(
             f"{self.base_url}/api/generate",
             json={"model": self.model, "prompt": prompt, "stream": False},
-            timeout=120,
+            timeout=300,
         )
         answer = response.json()["response"].strip()
 
