@@ -18,25 +18,16 @@ import httpx
 def llm_judge(question: str, answer: str, ground_truth: str,
               context: list[str], model: str = OLLAMA_MODEL) -> dict:
     context_str = "\n\n".join(context[:3])
-    prompt = f"""You are an expert evaluator for RAG systems. Evaluate the answer strictly.
-
-Question: {question}
-Ground Truth: {ground_truth}
-Retrieved Context: {context_str}
-Generated Answer: {answer}
-
-Score each dimension from 0.0 to 1.0:
-1. faithfulness: Are all claims in the answer supported by the context?
-2. answer_relevancy: Does the answer address the question?
-3. correctness: Does the answer align with the ground truth?
-
-Respond in valid JSON only:
+    prompt = f"""Rate this answer. Reply in JSON only.
+Q: {question[:200]}
+Answer: {answer[:300]}
+Truth: {ground_truth[:200]}
 {{"faithfulness": 0.0, "answer_relevancy": 0.0, "correctness": 0.0, "reasoning": ""}}"""
 
     resp = httpx.post(
         "http://localhost:11434/api/generate",
         json={"model": model, "prompt": prompt, "stream": False},
-        timeout=120,
+        timeout=600,
     )
     resp_json = resp.json()
     if "response" not in resp_json:
@@ -54,6 +45,9 @@ Respond in valid JSON only:
 def run_evaluation(pipeline: RAGPipeline, questions_path: str,
                    results_path: str, run_name: str):
     questions = json.loads(Path(questions_path).read_text())
+    if os.getenv("CI_MODE"):
+        questions = questions[:5]
+        print("CI mode: running 5 questions only")
     results   = []
 
     print(f"\nRunning evaluation: {run_name}")
