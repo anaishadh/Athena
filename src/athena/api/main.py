@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import sys
 import time
+from prometheus_client import Counter, Histogram, make_asgi_app, REGISTRY
 
 sys.path.insert(0, "src")
 
@@ -22,6 +23,30 @@ from athena.agents.react_agent import ReActAgent
 from athena.agents.planner_executor import PlannerExecutorAgent
 from athena.agents.reflection_agent import ReflectionAgent
 from athena.agents.multi_agent import MultiAgentOrchestrator
+
+# ── Prometheus metrics ─────────────────────────────────────────────────
+QUERY_COUNT = Counter(
+    "athena_queries_total",
+    "Total number of queries",
+    ["pipeline", "status"]
+)
+QUERY_LATENCY = Histogram(
+    "athena_query_duration_seconds",
+    "Query latency in seconds",
+    ["pipeline"],
+    buckets=[0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0]
+)
+AGENT_COUNT = Counter(
+    "athena_agent_runs_total",
+    "Total number of agent runs",
+    ["agent", "status"]
+)
+AGENT_LATENCY = Histogram(
+    "athena_agent_duration_seconds",
+    "Agent run latency in seconds",
+    ["agent"],
+    buckets=[1.0, 5.0, 10.0, 30.0, 60.0, 120.0]
+)
 
 # Global components
 components = {}
@@ -63,6 +88,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+metrics_app = make_asgi_app()
+app.mount("/metrics/", metrics_app)
 
 # ── Request / Response models ──────────────────────────────────────────
 
@@ -107,15 +135,22 @@ def query(request: QueryRequest):
             detail=f"Unknown pipeline '{request.pipeline}'. "
                    f"Choose from: {list(pipelines.keys())}"
         )
-    start  = time.time()
-    result = pipelines[request.pipeline].query(request.question)
-    return QueryResponse(
-        question=request.question,
-        answer=result["answer"],
-        sources=list(set(result.get("sources", []))),
-        pipeline=request.pipeline,
-        latency_ms=round((time.time() - start) * 1000, 2),
-    )
+    start = time.time()
+    try:
+        result = pipelines[request.pipeline].query(request.question)
+        latency = time.time() - start
+        QUERY_COUNT.labels(pipeline=request.pipeline, status="success").inc()
+        QUERY_LATENCY.labels(pipeline=request.pipeline).observe(latency)
+        return QueryResponse(
+            question=request.question,
+            answer=result["answer"],
+            sources=list(set(result.get("sources", []))),
+            pipeline=request.pipeline,
+            latency_ms=round(latency * 1000, 2),
+        )
+    except Exception as e:
+        QUERY_COUNT.labels(pipeline=request.pipeline, status="error").inc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/agent", response_model=AgentResponse)
 def agent(request: AgentRequest):
@@ -126,15 +161,22 @@ def agent(request: AgentRequest):
             detail=f"Unknown agent '{request.agent}'. "
                    f"Choose from: {list(agents.keys())}"
         )
-    start  = time.time()
-    result = agents[request.agent].run(request.question)
-    return AgentResponse(
-        question=request.question,
-        answer=result["answer"],
-        sources=list(set(result.get("sources", []))),
-        agent=request.agent,
-        latency_ms=round((time.time() - start) * 1000, 2),
-    )
+    start = time.time()
+    try:
+        result = agents[request.agent].run(request.question)
+        latency = time.time() - start
+        AGENT_COUNT.labels(agent=request.agent, status="success").inc()
+        AGENT_LATENCY.labels(agent=request.agent).observe(latency)
+        return AgentResponse(
+            question=request.question,
+            answer=result["answer"],
+            sources=list(set(result.get("sources", []))),
+            agent=request.agent,
+            latency_ms=round(latency * 1000, 2),
+        )
+    except Exception as e:
+        AGENT_COUNT.labels(agent=request.agent, status="error").inc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/pipelines")
 def list_pipelines():
