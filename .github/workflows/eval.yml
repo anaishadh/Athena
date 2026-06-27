@@ -1,0 +1,85 @@
+name: Athena Evaluation Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Start Qdrant
+        run: |
+          docker run -d --name qdrant \
+            -p 6333:6333 \
+            qdrant/qdrant
+          sleep 5
+
+      - name: Start Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 10
+          ollama pull qwen2.5:14b
+
+      - name: Ingest corpus
+        run: |
+          uv run python scripts/fetch_corpus.py
+          uv run python scripts/ingest_corpus.py
+          uv run python scripts/build_bm25_index.py
+
+      - name: Run evaluation
+        run: |
+          uv run python scripts/run_evaluation.py
+
+      - name: Check quality gate
+        run: |
+          uv run python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          results = json.loads(
+              Path("data/golden/results_hybrid_reranked.json").read_text()
+          )
+
+          faithfulness = results["avg_faithfulness"]
+          relevancy    = results["avg_relevancy"]
+          correctness  = results["avg_correctness"]
+
+          print(f"Faithfulness: {faithfulness:.4f}")
+          print(f"Relevancy:    {relevancy:.4f}")
+          print(f"Correctness:  {correctness:.4f}")
+
+          assert faithfulness >= 0.45, \
+              f"Faithfulness {faithfulness:.4f} below threshold 0.45"
+          assert relevancy >= 0.65, \
+              f"Relevancy {relevancy:.4f} below threshold 0.65"
+          assert correctness >= 0.50, \
+              f"Correctness {correctness:.4f} below threshold 0.50"
+
+          print("Quality gate passed.")
+          EOF
+
+      - name: Upload evaluation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-results
+          path: data/golden/results_*.json
