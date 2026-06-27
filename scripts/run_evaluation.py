@@ -1,5 +1,6 @@
 import sys
 import os
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:14b")
 import json
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from athena.pipelines.rag_pipeline import RAGPipeline
 import httpx
 
 def llm_judge(question: str, answer: str, ground_truth: str,
-              context: list[str], model: str = "qwen2.5:14b") -> dict:
+              context: list[str], model: str = OLLAMA_MODEL) -> dict:
     context_str = "\n\n".join(context[:3])
     prompt = f"""You are an expert evaluator for RAG systems. Evaluate the answer strictly.
 
